@@ -33,7 +33,7 @@ object Main extends App {
     val libraries: List[Library] = librerias
       .filter(_.signupTime < numDays)
       .sortBy(x => - calculoPuntuacion(x.books, x.scanPerDay, x.signupTime) * (x.scanPerDay / x.signupTime))
-      .map(x => Library(x.id, x.books.sortBy(-_.score), x.signupTime, x.scanPerDay))
+      .map(x => Library(x.id, x.books.toSet.toList.sortBy(-_.score), x.signupTime, x.scanPerDay))
 
     ReaderFirstPhase(numBooks,numLibraries,numDays,libraries)
   }
