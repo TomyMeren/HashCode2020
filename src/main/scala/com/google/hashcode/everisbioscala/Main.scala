@@ -39,15 +39,12 @@ object Main extends App {
 
 
 //case class ReaderFirstPhase(numBooks: Int, numLibraries: Int, numDays: Int, libraries: List[Library])
-  val z: ReaderFirstPhase = solucionFinal()
-  OutputWriter.writeOutput(z, "output.txt")
-
-  val a_output: ReaderFirstPhase = a
-  val b_output: ReaderFirstPhase = b
-  val c_output: ReaderFirstPhase = c
-  val d_output: ReaderFirstPhase = d
-  val e_output: ReaderFirstPhase = e
-  val f_output: ReaderFirstPhase = f
+  val a_output: ReaderFirstPhase = solucionFinal(a)
+  val b_output: ReaderFirstPhase = solucionFinal(b)
+  val c_output: ReaderFirstPhase = solucionFinal(c)
+  val d_output: ReaderFirstPhase = solucionFinal(d)
+  val e_output: ReaderFirstPhase = solucionFinal(e)
+  val f_output: ReaderFirstPhase = solucionFinal(f)
 
   OutputWriter.writeOutput(a_output, "src/main/resources/a_output.txt")
   OutputWriter.writeOutput(b_output, "src/main/resources/b_output.txt")
