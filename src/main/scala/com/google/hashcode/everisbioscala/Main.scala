@@ -8,32 +8,38 @@ object Main extends App {
   val e: ReaderFirstPhase = InputParser.readFile("src/main/resources/e_so_many_books.txt")
   val f: ReaderFirstPhase = InputParser.readFile("src/main/resources/f_libraries_of_the_world.txt")
 
-  val numBooks = a.numBooks
-  val numLibraries = a.numLibraries
-  val numDays= a.numDays
-  val librerias = a.libraries
 
-  def calculoPuntuacion(libros:List[Book],paralelismo:Int,tiempoLevantarse:Int):Int = {
-    libros
-      .sortBy( - _.score)
-      .flatMap {
-      libro => (tiempoLevantarse to libros.length).map(indice => (libro,indice))
+  def solucionFinal(a:ReaderFirstPhase):ReaderFirstPhase = {
+
+    val numBooks = a.numBooks
+    val numLibraries = a.numLibraries
+    val numDays = a.numDays
+    val librerias = a.libraries
+
+    def calculoPuntuacion(libros: List[Book], paralelismo: Int, tiempoLevantarse: Int): Int = {
+      libros
+        .sortBy(-_.score)
+        .flatMap {
+          libro => (tiempoLevantarse to libros.length).map(indice => (libro, indice))
+        }
+        .filter(_._2 <= paralelismo * numDays)
+        .map(_._1.score)
+        .reduce(_ + _)
     }
-      .filter(_._2 <= paralelismo * numDays)
-      .map(_._1.score)
-      .reduce(_ + _)
+
+    //case class Library(id: Int, books: List[Book], signupTime: Int, scanPerDay: Int)
+
+    val libraries: List[Library] = librerias
+      .filter(_.signupTime < numDays)
+      .sortBy(x => calculoPuntuacion(x.books, x.scanPerDay, x.signupTime) * (x.scanPerDay / x.signupTime))
+      .map(x => Library(x.id, x.books.sortBy(-_.score), x.signupTime, x.scanPerDay))
+
+    ReaderFirstPhase(numBooks,numLibraries,numDays,libraries)
   }
-
-  //case class Library(id: Int, books: List[Book], signupTime: Int, scanPerDay: Int)
-
-  val libraries:List[Library] = librerias
-    .filter(_.signupTime < numDays)
-    .sortBy(x=> calculoPuntuacion(x.books,x.scanPerDay,x.signupTime) * (x.scanPerDay /x.signupTime))
-    .map(x=> Library(x.id,x.books.sortBy(- _.score),x.signupTime,x.scanPerDay))
 
 
 //case class ReaderFirstPhase(numBooks: Int, numLibraries: Int, numDays: Int, libraries: List[Library])
-  val z: ReaderFirstPhase = ReaderFirstPhase(numBooks,numLibraries,numDays,libraries)
+  val z: ReaderFirstPhase = solucionFinal()
   OutputWriter.writeOutput(z, "output.txt")
 
   val a_output: ReaderFirstPhase = a
