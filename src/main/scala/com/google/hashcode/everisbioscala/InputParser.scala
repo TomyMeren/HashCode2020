@@ -47,14 +47,15 @@ object InputParser {
   def mergeInfo(firstLine: FirstLine, secondLine: SecondLine, restLines: RestLines): ReaderFirstPhase = {
     val finalLibraryList: List[Library] = restLines
       .tuples // List[numBooks: String, signupTime: Int, scanPerDay: Int, books: List[Int]]
+      .zipWithIndex
       .map{ x =>
-        val (numBooks: String, signupTime: Int, scanPerDay: Int, books: List[Int]) = x
+        val ((numBooks: String, signupTime: Int, scanPerDay: Int, books: List[Int]), libraryId: Int) = x
         val bookList: List[Book] = books
         .map{ bookToFind: Int =>
           val result: (Int, Int) = secondLine.books.find(_._1 == bookToFind).get
           Book(result._1, result._2)
         }
-        Library(bookList, signupTime, scanPerDay)
+        Library(libraryId, bookList, signupTime, scanPerDay)
       }
 
     ReaderFirstPhase(firstLine.numBooks, firstLine.numLibraries, firstLine.numDays, finalLibraryList)
