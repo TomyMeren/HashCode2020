@@ -20,7 +20,8 @@ object Main extends App {
       libros
         .sortBy(-_.score)
         .flatMap {
-          libro => (tiempoLevantarse to libros.length).map(indice => (libro, indice))
+          libro => (tiempoLevantarse until libros.length)
+            .map(indice => (libro, indice))
         }
         .filter(_._2 <= paralelismo * numDays)
         .map(_._1.score)
@@ -31,12 +32,11 @@ object Main extends App {
 
     val libraries: List[Library] = librerias
       .filter(_.signupTime < numDays)
-      .sortBy(x => calculoPuntuacion(x.books, x.scanPerDay, x.signupTime) * (x.scanPerDay / x.signupTime))
+      .sortBy(x => - calculoPuntuacion(x.books, x.scanPerDay, x.signupTime) * (x.scanPerDay / x.signupTime))
       .map(x => Library(x.id, x.books.sortBy(-_.score), x.signupTime, x.scanPerDay))
 
     ReaderFirstPhase(numBooks,numLibraries,numDays,libraries)
   }
-
 
 //case class ReaderFirstPhase(numBooks: Int, numLibraries: Int, numDays: Int, libraries: List[Library])
   val a_output: ReaderFirstPhase = solucionFinal(a)
