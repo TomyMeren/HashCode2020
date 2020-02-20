@@ -16,7 +16,7 @@ object Main extends App {
     val numDays = a.numDays
     val librerias = a.libraries
 
-    def calculoPuntuacion(libros: List[Book], paralelismo: Int, tiempoLevantarse: Int): Int = {
+    def ordenaLibros (libros: List[Book], paralelismo: Int, tiempoLevantarse: Int): List[(Book,Int)] = {
       libros
         .sortBy(-_.score)
         .flatMap {
@@ -24,6 +24,10 @@ object Main extends App {
             .map(indice => (libro, indice))
         }
         .filter(_._2 <= paralelismo * numDays)
+    }
+
+    def calculoPuntuacion(libros: List[(Book,Int)]): Int = {
+      libros
         .map(_._1.score)
         .reduce(_ + _)
     }
@@ -32,8 +36,13 @@ object Main extends App {
 
     val libraries: List[Library] = librerias
       .filter(_.signupTime < numDays)
-      .sortBy(x => - calculoPuntuacion(x.books, x.scanPerDay, x.signupTime) * (x.scanPerDay / x.signupTime))
-      .map(x => Library(x.id, x.books.toSet.toList.sortBy(-_.score), x.signupTime, x.scanPerDay))
+      .sortBy(x => - calculoPuntuacion(ordenaLibros(x.books, x.scanPerDay, x.signupTime)) * (x.scanPerDay / x.signupTime))
+      .map(x => Library(x.id,
+        ordenaLibros(x.books
+        .toSet.toList
+        .sortBy(-_.score),x.scanPerDay, x.signupTime)
+          .map(_._1),
+         x.signupTime, x.scanPerDay))
 
     ReaderFirstPhase(numBooks,numLibraries,numDays,libraries)
   }
