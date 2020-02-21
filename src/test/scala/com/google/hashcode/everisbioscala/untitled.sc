@@ -1,1 +1,0 @@
-List(4,5,6).sortBy(x=> - x)

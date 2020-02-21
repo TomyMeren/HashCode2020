@@ -18,4 +18,13 @@ class InputParserTest extends FlatSpec with Matchers {
     assert(expected == current)
   }
 
+  "funcion booksFilterAndOrder" should "match the following output" in {
+
+    val libros: List[Book] = List(Book(1, 5), Book(2, 4), Book(3, 1), Book(4, 23), Book(5, 8), Book(6, 14), Book(7, 24))
+    //def booksFilterAndOrder(books: List[Book], signupTime: Int, scanPerDay: Int, numDaysRest: Int)
+    val current =Logic.booksFilterAndOrder(libros,4,2,6)
+    val expected = List(Book(7, 24), Book(4, 23), Book(6, 14), Book(5, 8))
+
+    assert(expected == current)
+  }
 }
