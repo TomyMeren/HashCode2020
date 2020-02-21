@@ -20,7 +20,7 @@ object InputParser {
 
   def readSecondLine(line: String): SecondLine = {
     val input = line.split(" ").toList.map(_.toInt)
-    val indexed: List[(Int, Int)] = input.zipWithIndex
+    val indexed: List[(Int, Int)] = (0 to input.size).toList zip input
     SecondLine(indexed)
   }
 
@@ -33,13 +33,16 @@ object InputParser {
       (numBooks, signupTime, scanPerDay, booksSplit.map(_.toInt))
     }
 
-    val doubleList: Iterator[(String, String)] = for {
-      l <- lines.grouped(2)
-    } yield l.head -> l.tail.head
-
-    val result: List[(String, Int, Int, List[Int])]  = doubleList
-      .toList // List[(String, String)]
-      .map(x => helper(x._1, x._2))
+    def groupListToTuple[A](input: List[A], acc: List[(A, A)] = List.empty[(A, A)]): List[(A, A)] = {
+      input match {
+        case (x :: y :: z) if acc.isEmpty => groupListToTuple(z, (x, y) +: List.empty[(A, A)])
+        case (x :: y :: z) => groupListToTuple(z,  acc :+ (x, y))
+        case _ => acc
+      }
+    }
+    
+    val result: List[(String, Int, Int, List[Int])]  = groupListToTuple(lines)
+      .map(x => helper(x._1, x._2))// List[(String, String)]
 
     RestLines(result)
   }
