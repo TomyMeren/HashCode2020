@@ -1,8 +1,6 @@
 package com.google.hashcode.everisbioscala
 
 import org.scalatest._
-import org.scalatest.matchers.should.Matchers
-
 
 class InputParserTest extends FlatSpec with Matchers {
 

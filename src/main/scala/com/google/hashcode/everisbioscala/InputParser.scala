@@ -32,14 +32,11 @@ object InputParser {
       val booksSplit: List[String] = libraryBooks.split(" ").toList
       (numBooks, signupTime, scanPerDay, booksSplit.map(_.toInt))
     }
-
-    val doubleList: Iterator[(String, String)] = for {
-      l <- lines.grouped(2)
-    } yield l.head -> l.tail.head
+    
+    val doubleList: List[(String, String)] = lines.zip(lines.tail)
 
     val result: List[(String, Int, Int, List[Int])]  = doubleList
-      .toList // List[(String, String)]
-      .map(x => helper(x._1, x._2))
+      .map(x => helper(x._1, x._2))// List[(String, String)]
 
     RestLines(result)
   }
