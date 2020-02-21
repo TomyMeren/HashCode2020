@@ -55,7 +55,7 @@ object InputParser {
         val ((numBooks: String, signupTime: Int, scanPerDay: Int, books: List[Int]), libraryId: Int) = x
         val bookList: List[Book] = books
         .map{ bookToFind: Int =>
-          val result: (Int, Int) = secondLine.books.find(_._2 == bookToFind).get
+          val result: (Int, Int) = secondLine.books.find(_._1 == bookToFind).get
           Book(result._1, result._2)
         }
         Library(libraryId, bookList, signupTime, scanPerDay)
