@@ -7,7 +7,7 @@ object Logic {
   def finalSolution(a: ReaderFirstPhase): ReaderFirstPhase = {
     val numDaysIni: Int = a.numDays
     val librariesIni: List[Library] = a.libraries
-    //case class ReaderFirstPhase(numBooks: Int, numLibraries: Int, numDays: Int, libraries: List[Library])
+
     ReaderFirstPhase(a.numBooks, a.numLibraries, numDaysIni, loop(librariesIni, numDaysIni))
   }
 
