@@ -4,9 +4,9 @@ case class Time(days: Int) {
   def passDay = Time(days-1)
 }
 
-case class Book(id: Int, score: Int)
+case class Book(id: Int, score: Int, worldWideUnits: Int = 0)
 
-case class Library(id: Int, books: List[Book], signupTime: Int, scanPerDay: Int)
+case class Library(id: Int, books: List[Book], signupTime: Int, scanPerDay: Int, apparentScore: Int = 0)
 
 case class FirstLine(numBooks: Int, numLibraries: Int, numDays: Int)
 case class SecondLine(books: List[(Int, Int)])

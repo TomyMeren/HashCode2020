@@ -12,7 +12,7 @@ object OutputWriter {
     for {
       library <- output.libraries
     } yield {
-      bw.write(library.books.size.toString+"\n") // id numBooks
+      bw.write(library.id.toString + " " + library.books.size.toString+"\n") // id numBooks
       bw.write(library.books.map(_.id.toString).mkString(" ")+"\n") // books (ordered)
     }
     bw.close()
