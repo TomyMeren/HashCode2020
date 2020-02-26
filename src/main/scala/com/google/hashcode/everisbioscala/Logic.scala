@@ -33,17 +33,21 @@ object Logic {
   def finalSolution(a: ReaderFirstPhase): ReaderFirstPhase = {
     val numDaysIni: Int = a.numDays
     val librariesIni: List[Library] = a.libraries
+    val sol: List[Library] = loop(librariesIni, numDaysIni, Nil)
 
-    ReaderFirstPhase(a.numBooks, a.numLibraries, numDaysIni, loop(librariesIni, numDaysIni))
+    ReaderFirstPhase(a.numBooks, sol.length, numDaysIni, sol)
   }
 
   //Ordena una lista de libros sin duplicados y elimina aquellos que no entran en el periodo de tiempo establecido
-  def booksFilterAndOrder(books: List[Book], signupTime: Int, scanPerDay: Int, numDaysRest: Int): List[Book] = {
-    val numBooksInTime: Int = scanPerDay * (numDaysRest - signupTime)
+  def booksFilterAndOrder(books: List[Book], signupTime: BigInt, scanPerDay: BigInt, numDaysRest: BigInt): List[Book] = {
 
-    books
-      .sortBy(-_.score) //TODO: Mejorable: solo cambia el numero de libros que coge y no es necesario reconputar el sort
-      .take(numBooksInTime)
+    val numBooksInTime: BigInt = scanPerDay * (numDaysRest - signupTime)
+
+    val outputBooks = books
+      .sortBy(-_.score)
+      .take(if (!numBooksInTime.isValidInt) books.length else numBooksInTime.toInt)
+
+    outputBooks
   }
 
   //Devuelve la puntuacion de cada libreria
@@ -51,17 +55,14 @@ object Logic {
     val totalBookScore: Int = books
       .map(_.score)
       .sum
-    //indUp => Da cuenta de que el numero de dias en levantarse es mas relevante cuando el tiempo de ejecucion es menor
-    val indUp: Double = signupTime.toDouble / numDaysRest.toDouble
 
-    (totalBookScore * scanPerDay) / indUp //TODO: Es posible que se pueda mejorar la formula
+    //TODO: Es posible que se pueda mejorar la formula
+    totalBookScore / signupTime.toDouble
   }
 
   // Filtra por aquellas librerias que no se puedan dar de alta en el tiempo establecido y ordena.
   // Se queda con los libros por libreria que dara tiempo a evaluar y ordena
-
-  def eval(librariesRest: List[Library], numDaysRest: Int): Stream[Library] = { // Es un stream por que solo queremos el primer caso
-
+  def evalLibraries(librariesRest: List[Library], numDaysRest: Int): List[Library] = { // Es un stream por que solo queremos el primer caso
     librariesRest
       .filter(_.signupTime < numDaysRest)
       .map(library => Library(
@@ -69,24 +70,31 @@ object Logic {
         booksFilterAndOrder(library.books.toSet.toList, library.signupTime, library.scanPerDay, numDaysRest), //Elimina Duplicados libros
         library.signupTime,
         library.scanPerDay))
-      .sortBy(library => libraryScore(library.books, library.signupTime, library.scanPerDay, numDaysRest))
-      .toStream
+      .sortBy(library => -libraryScore(library.books, library.signupTime, library.scanPerDay, numDaysRest))
   }
 
   //Funcion que recibe una lista de librerias, se queda con la primera y recomputa el resto teniendo en cuenta
   //el tiempo que ha pasado
+  def loop(libr: List[Library], numDaysPasados: Int, acc: List[Library]): List[Library] = {
 
-  def loop(restLibr: List[Library], numDaysPasados: Int): List[Library] = {
+    val result = evalLibraries(libr, numDaysPasados)
 
-    val result = eval(restLibr, numDaysPasados)
-
-    if(result.isEmpty) Nil
-    else {
-      val firstLib: Library = eval(restLibr, numDaysPasados).head
-      val numDiasRestantes: Int = numDaysPasados - firstLib.signupTime
-
-      if (numDiasRestantes <= 0) List(firstLib)
-        else firstLib :: loop(restLibr diff List(firstLib), numDiasRestantes)
+    result match {
+      case Nil => acc
+      case firstLib :: Nil => acc :+ firstLib
+      case firstLib :: restLibr => {
+        val numDiasRestantes: Int = numDaysPasados - firstLib.signupTime
+        println("diasRestantes: " + numDiasRestantes)
+        if (numDiasRestantes <= 0) acc :+ firstLib
+        else
+          loop(
+            restLibr
+              .map(library => Library(
+                library.id,
+                library.books.filter(book => !(firstLib.books contains book)),
+                library.signupTime,
+                library.scanPerDay)), numDiasRestantes, acc :+ firstLib)
+      }
     }
   }
 }
