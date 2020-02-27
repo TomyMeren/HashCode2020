@@ -16,10 +16,22 @@ val librerias: List[Library] = List(Library(1, libros1, 1, 1), Library(2, libros
 def booksFilterAndOrder(books: List[Book], signupTime: BigInt, scanPerDay: BigInt, numDaysRest: BigInt): List[Book] = {
 
   val numBooksInTime: BigInt = scanPerDay * (numDaysRest - signupTime)
+  //Las librerias con un gran escaneo y poco tiempo de levantado
 
   val outputBooks = books
     .sortBy(-_.score)
     .take(if (!numBooksInTime.isValidInt) books.length else numBooksInTime.toInt)
+
+  outputBooks
+}
+
+def booksFilterAndOrder2(books: List[Book], signupTime: Int, scanPerDay: Int, numDaysRest: Int): List[Book] = {
+
+  val numBooksInTime: Int = scanPerDay * (numDaysRest - signupTime)
+
+  val outputBooks = books
+    .sortBy(-_.score)
+    .take(numBooksInTime)
 
   outputBooks
 }
@@ -38,22 +50,32 @@ def libraryScore2(books: List[Book], signupTime: Int, scanPerDay: Int, numDaysRe
   val totalBookScore: Int = books
     .map(_.score)
     .sum
-
-  val first:Int = books.map(_.score).take(numDaysRest/10).sum
-
-  totalBookScore  / (signupTime.toDouble * first)
+  totalBookScore / (signupTime.toDouble * books.length)
 
 }
-//Numero de libros
+
+
+// Numero de libros
 // Numero de duplicados - cambiar Logica
-//
-val signupTime1 = 6
+// Los que tiene mucho paralelismo y/o poco tiempoUp, es mejor ponerlos los ultimos ¿?
+  //Paralelismo dividiendo - mal
+  // tiempo de levantamiento multiplicando - choca con la mejor solucion
+
+val signupTime1 = 1
 val scanPerDay1 = 1
 
-val signupTime2 = 1
-val scanPerDay2 = 2
+val signupTime2 = 6
+val scanPerDay2 = 6
 
 val numDaysRest = 20
+
+libraryScore(libros1, signupTime1, scanPerDay1, numDaysRest)
+libraryScore(libros2, signupTime2, scanPerDay2, numDaysRest)
+libraryScore(libros3, signupTime1, scanPerDay1, numDaysRest)
+
+libraryScore2(libros1, signupTime1, scanPerDay1, numDaysRest)
+libraryScore2(libros2, signupTime2, scanPerDay2, numDaysRest)
+libraryScore2(libros3, signupTime1, scanPerDay1, numDaysRest)
 
 booksFilterAndOrder(libros1, signupTime1, scanPerDay1, numDaysRest).map(_.score).sum
 booksFilterAndOrder(libros2, signupTime2, scanPerDay2, numDaysRest).map(_.score).sum

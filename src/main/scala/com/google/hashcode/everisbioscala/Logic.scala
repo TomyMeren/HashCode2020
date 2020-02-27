@@ -29,20 +29,16 @@ object Logic {
       .sum
 
     //TODO: Es posible que se pueda mejorar la formula
-    //totalBookScore / signupTime.toDouble
-    //  Dividir por el tiempo es importante cuando número de libros en cada biblioteca era muy bajo,
-    // por lo que tenían mucho tiempo de inactividad cuando terminaban de escanear todos sus libros
-
-
-    totalBookScore  / signupTime.toDouble 
+    totalBookScore / signupTime.toDouble //Si hay librerias con pocos tiempo de levantado y otra con la misma puntuacion con mas tiempo, priorizamos la de menos tiempo que nos dara puntos antes
   }
 
   // Filtra por aquellas librerias que no se puedan dar de alta en el tiempo establecido y ordena.
   // Se queda con los libros por libreria que dara tiempo a evaluar y ordena
+  
   def evalLibraries(librariesRest: List[Library], numDaysRest: Int): List[Library] = { // Es un stream por que solo queremos el primer caso
     librariesRest
       .filter(_.signupTime < numDaysRest)
-      .map(library => Library(
+      .map(library => Library(//TODO: .copy
         library.id,
         booksFilterAndOrder(library.books.toSet.toList, library.signupTime, library.scanPerDay, numDaysRest), //Elimina Duplicados libros
         library.signupTime,
@@ -65,8 +61,10 @@ object Logic {
         if (numDiasRestantes <= 0) acc :+ firstLib
         else
           loop(
-            restLibr
-              .map(library => Library(
+            //restLibr
+            libr//vuelve con todos los libros excepto los duplicados
+              .filter(_.id != firstLib.id)
+              .map(library => Library(//TODO: .copy
                 library.id,
                 library.books.filter(book => !(firstLib.books contains book)),
                 library.signupTime,
