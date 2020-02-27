@@ -1,35 +1,7 @@
 package com.google.hashcode.everisbioscala
 
-import scala.collection.parallel.immutable.ParSeq
-
 object Logic {
 
-  def filterSort(input: ReaderFirstPhase): ReaderFirstPhase = {
-    val libraries: ParSeq[Library] = input.libraries.par
-    val libsWithSortedBooks: ParSeq[Library] = for {
-      lib <- libraries
-      books = lib.books.sortBy(_.score)(Ordering[Int].reverse)
-    } yield lib.copy(books = books)
-
-    val libsWithSortedAndFilteredBooks: ParSeq[Library] = for {
-      lib <- libsWithSortedBooks
-      booksToScan: Int = (input.numDays - lib.signupTime) * lib.scanPerDay
-      books: List[Book] = lib.books.take(booksToScan)
-      apparentScore: Int = {
-        for {
-          b <- lib.books
-        } yield b.score
-      }.sum
-    } yield lib.copy(books = books, apparentScore = apparentScore)
-
-    val sortedLibs = libsWithSortedAndFilteredBooks
-      .toList
-      .sortBy(_.apparentScore)(Ordering[Int].reverse)
-
-    input.copy(libraries = sortedLibs)
-  }
-
-  
   def finalSolution(a: ReaderFirstPhase): ReaderFirstPhase = {
     val numDaysIni: Int = a.numDays
     val librariesIni: List[Library] = a.libraries
@@ -57,7 +29,12 @@ object Logic {
       .sum
 
     //TODO: Es posible que se pueda mejorar la formula
-    totalBookScore / signupTime.toDouble
+    //totalBookScore / signupTime.toDouble
+    //  Dividir por el tiempo es importante cuando número de libros en cada biblioteca era muy bajo,
+    // por lo que tenían mucho tiempo de inactividad cuando terminaban de escanear todos sus libros
+
+
+    totalBookScore  / signupTime.toDouble 
   }
 
   // Filtra por aquellas librerias que no se puedan dar de alta en el tiempo establecido y ordena.
