@@ -6,7 +6,7 @@ case class Time(days: Int) {
 
 case class Book(id: Int, score: Int, worldWideUnits: Int = 0)
 
-case class Library(id: Int, books: List[Book], signupTime: Int, scanPerDay: Int, apparentScore: Int = 0)
+case class Library(id: Int, books: List[Book], signupTime: Int, scanPerDay: Int, apparentScore: Double = 0, withDuplicates: Boolean = true)
 
 case class FirstLine(numBooks: Int, numLibraries: Int, numDays: Int)
 case class SecondLine(books: List[(Int, Int)])

@@ -1,6 +1,7 @@
 package com.google.hashcode.everisbioscala
 
 import scala.io.Source
+import scala.util.{Failure, Success, Try}
 
 object InputParser {
   def readFile(path: String): ReaderFirstPhase  = {

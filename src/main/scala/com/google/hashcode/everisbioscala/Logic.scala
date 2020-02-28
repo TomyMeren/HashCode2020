@@ -1,5 +1,8 @@
 package com.google.hashcode.everisbioscala
 
+import scala.annotation.tailrec
+import scala.collection.parallel.immutable.ParSeq
+
 object Logic {
 
   def finalSolution(a: ReaderFirstPhase): ReaderFirstPhase = {
@@ -23,7 +26,7 @@ object Logic {
   }
 
   //Devuelve la puntuacion de cada libreria
-  def libraryScore(books: List[Book], signupTime: Int, scanPerDay: Int, numDaysRest: Int): Double = {
+  def libraryScore(books: List[Book], signupTime: Int): Double = {
     val totalBookScore: Int = books
       .map(_.score)
       .sum
@@ -36,18 +39,21 @@ object Logic {
   // Se queda con los libros por libreria que dara tiempo a evaluar y ordena
   
   def evalLibraries(librariesRest: List[Library], numDaysRest: Int): List[Library] = { // Es un stream por que solo queremos el primer caso
-    librariesRest
-      .filter(_.signupTime < numDaysRest)
-      .map(library => Library(//TODO: .copy
-        library.id,
-        booksFilterAndOrder(library.books.toSet.toList, library.signupTime, library.scanPerDay, numDaysRest), //Elimina Duplicados libros
-        library.signupTime,
-        library.scanPerDay))
-      .sortBy(library => -libraryScore(library.books, library.signupTime, library.scanPerDay, numDaysRest))
+    val libraries: ParSeq[Library] = librariesRest.par
+    libraries
+      .filter(_.signupTime < numDaysRest) //Elimina Duplicados libros
+      .map(library => library.copy(
+        books = booksFilterAndOrder(if (library.withDuplicates) library.books.distinct
+                                    else library.books, library.signupTime, library.scanPerDay, numDaysRest),
+        withDuplicates = false,
+        apparentScore = libraryScore(library.books, library.signupTime)))
+      .toList
+      .sortBy(-_.apparentScore)
   }
 
   //Funcion que recibe una lista de librerias, se queda con la primera y recomputa el resto teniendo en cuenta
   //el tiempo que ha pasado
+  @tailrec
   def loop(libr: List[Library], numDaysPasados: Int, acc: List[Library]): List[Library] = {
 
     val result = evalLibraries(libr, numDaysPasados)
@@ -61,14 +67,10 @@ object Logic {
         if (numDiasRestantes <= 0) acc :+ firstLib
         else
           loop(
-            //restLibr
-            libr//vuelve con todos los libros excepto los duplicados
-              .filter(_.id != firstLib.id)
-              .map(library => Library(//TODO: .copy
-                library.id,
-                library.books.filter(book => !(firstLib.books contains book)),
-                library.signupTime,
-                library.scanPerDay)), numDiasRestantes, acc :+ firstLib)
+            restLibr
+            //libr.filter(_.id != firstLib.id)
+              .map(library => library.copy(books = library.books.filter(book => !(firstLib.books contains book))))
+            , numDiasRestantes, acc :+ firstLib)
       }
     }
   }

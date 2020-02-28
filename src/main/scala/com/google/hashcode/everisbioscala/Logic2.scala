@@ -24,7 +24,7 @@ object Logic2 {
 
     val sortedLibs = libsWithSortedAndFilteredBooks
       .toList
-      .sortBy(_.apparentScore)(Ordering[Int].reverse)
+      .sortBy(_.apparentScore)(Ordering[Double].reverse)
 
     input.copy(libraries = sortedLibs)
   }
